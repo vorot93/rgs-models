@@ -1,0 +1,19 @@
+[package]
+name = "rgs_models"
+version = "0.3.0"
+authors = [
+    "Artem Vorotnikov <artem@vorotnikov.me>",
+]
+description = "Tool for querying game servers. Models."
+repository = "https://github.com/vorot93/rgs-models"
+keywords = [
+    "game",
+    "games",
+]
+license = "MIT"
+
+[dependencies]
+serde = "0.9"
+serde_derive = "0.9"
+serde_json = "0.9"
+iso_country = "0.1"
