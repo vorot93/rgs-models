@@ -5,11 +5,11 @@ extern crate serde_derive;
 extern crate serde_json;
 extern crate iso_country;
 
-use std::collections::HashMap;
 use std::ops::Deref;
 use std::str::FromStr;
 
 use serde::*;
+use serde_json::Value;
 
 use iso_country::Country as CountryBase;
 
@@ -79,7 +79,7 @@ impl Default for Status {
 pub struct Player {
     pub name: String,
     pub ping: Option<i64>,
-    pub info: HashMap<String, String>,
+    pub info: serde_json::Map<String, Value>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -97,7 +97,7 @@ pub struct Server {
     pub country: Country,
 
     #[serde(default)]
-    pub rules: HashMap<String, String>,
+    pub rules: serde_json::Map<String, Value>,
 
     // Optional fields
     #[serde(skip_serializing_if="Option::is_none")]
@@ -146,6 +146,7 @@ mod tests {
         fixture.status = Status::Up;
         fixture.host = "127.0.0.1".to_string();
         fixture.country = Country(CountryBase::RU);
+        fixture.rules.insert("protocol-version".into(), 84.into());
 
         let expectation = json!({
             "host": "127.0.0.1",
@@ -153,6 +154,7 @@ mod tests {
             "status": "Up",
             "country": "RU",
             "rules": {
+                "protocol-version": 84,
             },
         });
 
@@ -169,6 +171,7 @@ mod tests {
             "status": "Up",
             "country": "RU",
             "rules": {
+                "protocol-version": 84,
             },
         });
 
@@ -177,6 +180,7 @@ mod tests {
         expectation.status = Status::Up;
         expectation.host = "127.0.0.1".to_string();
         expectation.country = Country(CountryBase::RU);
+        expectation.rules.insert("protocol-version".into(), 84.into());
 
         let result = serde_json::from_value(fixture).unwrap();
 
