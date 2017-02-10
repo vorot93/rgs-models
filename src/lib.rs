@@ -13,9 +13,6 @@ use serde_json::Value;
 
 use iso_country::Country as CountryBase;
 
-mod protocols;
-use protocols::*;
-
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Country(CountryBase);
 
@@ -88,9 +85,6 @@ pub struct Server {
     pub host: String,
 
     #[serde(default)]
-    pub protocol: Protocol,
-
-    #[serde(default)]
     pub status: Status,
 
     #[serde(default)]
@@ -142,7 +136,6 @@ mod tests {
     #[test]
     fn serialization() {
         let mut fixture = Server::default();
-        fixture.protocol = Protocol::Q3S;
         fixture.status = Status::Up;
         fixture.host = "127.0.0.1".to_string();
         fixture.country = Country(CountryBase::RU);
@@ -150,7 +143,6 @@ mod tests {
 
         let expectation = json!({
             "host": "127.0.0.1",
-            "protocol": "Q3S",
             "status": "Up",
             "country": "RU",
             "rules": {
@@ -167,7 +159,6 @@ mod tests {
     fn deserialization() {
         let fixture = json!({
             "host": "127.0.0.1",
-            "protocol": "Q3S",
             "status": "Up",
             "country": "RU",
             "rules": {
@@ -176,7 +167,6 @@ mod tests {
         });
 
         let mut expectation = Server::default();
-        expectation.protocol = Protocol::Q3S;
         expectation.status = Status::Up;
         expectation.host = "127.0.0.1".to_string();
         expectation.country = Country(CountryBase::RU);
