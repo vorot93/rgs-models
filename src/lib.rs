@@ -80,9 +80,17 @@ pub struct Player {
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct Host {
+    pub addr: String,
+
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub port: Option<u16>,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Server {
     // Mandatory parameters
-    pub host: String,
+    pub host: Host,
 
     #[serde(default)]
     pub status: Status,
@@ -136,13 +144,17 @@ mod tests {
     #[test]
     fn serialization() {
         let mut fixture = Server::default();
+        fixture.host.addr = "127.0.0.1".into();
+        fixture.host.port = Some(9000);
         fixture.status = Status::Up;
-        fixture.host = "127.0.0.1".to_string();
         fixture.country = Country(CountryBase::RU);
         fixture.rules.insert("protocol-version".into(), 84.into());
 
         let expectation = json!({
-            "host": "127.0.0.1",
+            "host": {
+                "addr": "127.0.0.1",
+                "port": 9000,
+            },
             "status": "Up",
             "country": "RU",
             "rules": {
@@ -158,7 +170,10 @@ mod tests {
     #[test]
     fn deserialization() {
         let fixture = json!({
-            "host": "127.0.0.1",
+            "host": {
+                "addr": "127.0.0.1",
+                "port": 9000,
+            },
             "status": "Up",
             "country": "RU",
             "rules": {
@@ -167,8 +182,9 @@ mod tests {
         });
 
         let mut expectation = Server::default();
+        expectation.host.addr = "127.0.0.1".into();
+        expectation.host.port = Some(9000);
         expectation.status = Status::Up;
-        expectation.host = "127.0.0.1".to_string();
         expectation.country = Country(CountryBase::RU);
         expectation.rules.insert("protocol-version".into(), 84.into());
 
