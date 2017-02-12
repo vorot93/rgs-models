@@ -83,7 +83,15 @@ pub struct Player {
 pub struct Host {
     pub addr: String,
     pub port: u16,
+}
 
+impl From<std::net::SocketAddr> for Host {
+    fn from(addr: std::net::SocketAddr) -> Host {
+        Host {
+            addr: format!("{}", addr.ip()),
+            port: addr.port(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
