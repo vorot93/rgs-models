@@ -82,9 +82,8 @@ pub struct Player {
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct Host {
     pub addr: String,
+    pub port: u16,
 
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub port: Option<u16>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -145,7 +144,7 @@ mod tests {
     fn serialization() {
         let mut fixture = Server::default();
         fixture.host.addr = "127.0.0.1".into();
-        fixture.host.port = Some(9000);
+        fixture.host.port = 9000;
         fixture.status = Status::Up;
         fixture.country = Country(CountryBase::RU);
         fixture.rules.insert("protocol-version".into(), 84.into());
@@ -183,7 +182,7 @@ mod tests {
 
         let mut expectation = Server::default();
         expectation.host.addr = "127.0.0.1".into();
-        expectation.host.port = Some(9000);
+        expectation.host.port = 9000;
         expectation.status = Status::Up;
         expectation.country = Country(CountryBase::RU);
         expectation.rules.insert("protocol-version".into(), 84.into());
