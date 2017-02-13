@@ -79,25 +79,10 @@ pub struct Player {
     pub info: serde_json::Map<String, Value>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
-pub struct Host {
-    pub addr: String,
-    pub port: u16,
-}
-
-impl From<std::net::SocketAddr> for Host {
-    fn from(addr: std::net::SocketAddr) -> Host {
-        Host {
-            addr: format!("{}", addr.ip()),
-            port: addr.port(),
-        }
-    }
-}
-
-#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Server {
     // Mandatory parameters
-    pub host: Host,
+    pub host: std::net::SocketAddr,
 
     #[serde(default)]
     pub status: Status,
@@ -143,31 +128,54 @@ pub struct Server {
     pub players: Option<Vec<Player>>,
 }
 
+impl Server {
+    pub fn new(addr: std::net::SocketAddr) -> Server {
+        Server {
+            host: addr,
+            status: Status::default(),
+            country: Country::default(),
+            rules: serde_json::Map::default(),
+            name: Option::default(),
+            need_pass: Option::default(),
+            mod_name: Option::default(),
+            game_type: Option::default(),
+            terrain: Option::default(),
+            num_clients: Option::default(),
+            max_clients: Option::default(),
+            num_bots: Option::default(),
+            secure: Option::default(),
+            ping: Option::default(),
+            players: Option::default(),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     extern crate serde_json;
 
-    #[test]
-    fn serialization() {
-        let mut fixture = Server::default();
-        fixture.host.addr = "127.0.0.1".into();
-        fixture.host.port = 9000;
-        fixture.status = Status::Up;
-        fixture.country = Country(CountryBase::RU);
-        fixture.rules.insert("protocol-version".into(), 84.into());
+    fn fixtures() -> (Value, Server) {
+        let mut srv = Server::new(std::net::SocketAddr::from_str("127.0.0.1:9000").unwrap());
+        srv.status = Status::Up;
+        srv.country = Country(CountryBase::RU);
+        srv.rules.insert("protocol-version".into(), 84.into());
 
-        let expectation = json!({
-            "host": {
-                "addr": "127.0.0.1",
-                "port": 9000,
-            },
+        let ser = json!({
+            "host": "127.0.0.1:9000",
             "status": "Up",
             "country": "RU",
             "rules": {
                 "protocol-version": 84,
             },
         });
+
+        (ser, srv)
+    }
+
+    #[test]
+    fn serialization() {
+        let (expectation, fixture) = fixtures();
 
         let result = serde_json::to_value(&fixture).unwrap();
 
@@ -176,24 +184,7 @@ mod tests {
 
     #[test]
     fn deserialization() {
-        let fixture = json!({
-            "host": {
-                "addr": "127.0.0.1",
-                "port": 9000,
-            },
-            "status": "Up",
-            "country": "RU",
-            "rules": {
-                "protocol-version": 84,
-            },
-        });
-
-        let mut expectation = Server::default();
-        expectation.host.addr = "127.0.0.1".into();
-        expectation.host.port = 9000;
-        expectation.status = Status::Up;
-        expectation.country = Country(CountryBase::RU);
-        expectation.rules.insert("protocol-version".into(), 84.into());
+        let (fixture, expectation) = fixtures();
 
         let result = serde_json::from_value(fixture).unwrap();
 
