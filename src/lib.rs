@@ -82,7 +82,7 @@ pub struct Player {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Server {
     // Mandatory parameters
-    pub host: std::net::SocketAddr,
+    pub addr: std::net::SocketAddr,
 
     #[serde(default)]
     pub status: Status,
@@ -131,7 +131,7 @@ pub struct Server {
 impl Server {
     pub fn new(addr: std::net::SocketAddr) -> Server {
         Server {
-            host: addr,
+            addr: addr,
             status: Status::default(),
             country: Country::default(),
             rules: serde_json::Map::default(),
@@ -162,7 +162,7 @@ mod tests {
         srv.rules.insert("protocol-version".into(), 84.into());
 
         let ser = json!({
-            "host": "127.0.0.1:9000",
+            "addr": "127.0.0.1:9000",
             "status": "Up",
             "country": "RU",
             "rules": {
