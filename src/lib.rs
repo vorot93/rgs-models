@@ -9,6 +9,7 @@ use std::ops::Deref;
 use std::str::FromStr;
 
 use serde::*;
+use serde::de::{Deserializer, Visitor};
 use serde_json::Value;
 
 use iso_country::Country as CountryBase;
@@ -37,12 +38,12 @@ impl Serialize for Country {
     }
 }
 
-impl Deserialize for Country {
+impl<'de> Deserialize<'de> for Country {
     fn deserialize<D>(deserializer: D) -> Result<Country, D::Error>
-        where D: Deserializer
+        where D: Deserializer<'de>
     {
-        struct Visitor;
-        impl de::Visitor for Visitor {
+        struct CountryVisitor;
+        impl<'de> Visitor<'de> for CountryVisitor {
             type Value = Country;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -55,7 +56,7 @@ impl Deserialize for Country {
                 Ok(Country(CountryBase::from_str(value).unwrap_or(CountryBase::Unspecified)))
             }
         }
-        deserializer.deserialize_str(Visitor)
+        deserializer.deserialize_str(CountryVisitor)
     }
 }
 
